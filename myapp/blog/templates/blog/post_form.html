@@ -1,0 +1,17 @@
+{% extends 'blog/base.html' %}
+  {% block head %}
+  {% endblock head %}
+  {% block content %}
+  <h2>블로그 글 작성 화면</h2>
+  <form action="{% url 'blog:write' %}" method="post" class="form">
+    {% csrf_token %}
+    {% comment %}
+      <label for="title">제목</label>
+      <input type="text" name="title" id="title" placeholder="제목을 입력해주세요.">
+      <label for="content">내용</label>
+      <textarea name="content" id="content" rows="10" placeholder="내용을 입력해주세요."></textarea> 
+    {% endcomment %}
+    {{ form.as_p }}
+    <input type="submit" value="작성" class="btn btn-outline-success">
+  </form>
+  {% endblock content %}
