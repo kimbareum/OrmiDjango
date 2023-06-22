@@ -1,0 +1,42 @@
+{% extends 'blog/base.html' %}
+  {% block head %}
+    <style>
+      form {
+        display:flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+    </style>
+  {% endblock head %}
+  {% block content %}
+
+  {{ post.title }}
+  <br>
+  {{ post.content }}
+
+  {# UpdateView를 사용하면 굳이 action을 잡을 필요가 없음. #}
+  <form method="post" class="form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="수정" class="btn btn-outline-success">
+
+    {{ form.title.value }}
+    <br>
+    {{ form.content.value }}
+    <br>
+    {{ form.initial.title }}
+    <br>
+    {{ form.initial.content }}
+
+
+    {% comment %}
+      {{ form.title.label_tag }}
+      <input type="text" value="{{ form.initial.title }}" name="{{ form.title.name }}">
+      </p>
+      <p>
+        {{ form.content.label_tag }}
+        {{ form.content }}
+      </p>
+    {% endcomment %}
+  </form>
+  {% endblock content %}

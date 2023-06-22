@@ -14,7 +14,7 @@
     <tbody>
     {% for post in posts %}
       <tr>
-        <td><a href="{% url 'blog:detail' pk=post.pk %}" class="btn btn-outline-success">{{post.title}}</a></td>
+        <td><a href="{% url 'blog:detail' post_id=post.pk %}" class="btn">{{post.title}}</a></td>
         <td>{{post.writer}}</td>
         {# <td>{{post.content}}</td> #}
         {% comment %}

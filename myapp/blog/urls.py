@@ -11,5 +11,9 @@ urlpatterns = [
     # 제네릭뷰
     path('', views.List.as_view(), name='list'),
     path('write/', views.Write.as_view(), name='write'),
-    path('detail/<int:pk>/', views.Detail.as_view(), name='detail'),
+    path('detail/<int:post_id>/', views.DetailView.as_view(), name='detail'),
+    path('detail/<int:pk>/edit', views.Update.as_view(), name='edit'),
+    path('detail/<int:pk>/delete', views.Delete.as_view(), name='delete'),
+    # 코멘트
+    path('detail/<int:post_id>/comment', views.CommentWrite.as_view(), name='comment'),
 ]
