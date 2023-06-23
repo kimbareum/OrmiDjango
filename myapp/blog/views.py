@@ -3,8 +3,8 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
-from .models import Post, Comment
-from .forms import PostForm, CommentForm
+from .models import Post, Comment, HashTag
+from .forms import PostForm, CommentForm, HashTagForm
 
 
 ### Post
@@ -19,7 +19,7 @@ from .forms import PostForm, CommentForm
 #         # return HttpResponse('Index page GET class')
 
 
-# # write
+# write
 # def write(request):
 #     if request.method == 'POST':
 #         form = PostForm(request.POST)
@@ -61,9 +61,15 @@ class DetailView(View):
     def get(self, request, post_id):
         post = Post.objects.get(pk=post_id)
         comments = Comment.objects.filter(post=post)
+        hashTags = HashTag.objects.filter(post=post)
+        commentForm = CommentForm
+        hashTagForm = HashTagForm
         context = {
             "post": post,
             "comments": comments,
+            "hashTags": hashTags,
+            "commentForm": commentForm,
+            "hashTagForm": hashTagForm,
         }
         return render(request, 'blog/post_detail.html', context)
 
@@ -76,7 +82,7 @@ class Update(UpdateView):
 
     def get_success_url(self): # get_absolute_url
         post = self.get_object()
-        return reverse('blog:detail', kwargs={'pk': post.pk})
+        return reverse('blog:detail', kwargs={'post_id': post.pk})
     
     # def get_absolute_url(self):
     # success_url = reverse_lazy(f"blog:detail", kwargs={'pk': self.object.pk})
@@ -107,4 +113,35 @@ class CommentWrite(View):
             content = form.cleaned_data['content']
             post = Post.objects.get(pk=post_id)
             comment = Comment.objects.create(post=post, content=content)
-            return redirect('blog:detail', pk=post.pk)
+            return redirect('blog:detail', post_id=post.pk)
+
+
+class CommentDelete(View):
+
+    def post(self, request, comment_id):
+        comment = Comment.objects.get(pk=comment_id)
+        post_id = comment.post.pk
+        # post_id = comment.post.id # pk도 되고 id도 되네요.
+        comment.delete()
+        return redirect('blog:detail', post_id=post_id)
+
+
+### HashTag
+class HashTagWrite(View):
+
+    def post(self, request, post_id):
+        form = HashTagForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            post = Post.objects.get(pk=post_id)
+            hashTag = HashTag.objects.create(name=name, post=post)
+            return redirect('blog:detail', post_id=post_id)
+
+
+class HashTagDelete(View):
+
+    def post(self, request, hashTag_id):
+        hashTag = HashTag.objects.get(pk=hashTag_id)
+        post_id = hashTag.post.id
+        hashTag.delete()
+        return redirect('blog:detail', post_id=post_id)

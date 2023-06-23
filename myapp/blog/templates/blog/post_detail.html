@@ -1,22 +1,104 @@
 {% extends 'blog/base.html' %}
+  {% block head %}
+    <style>
+      .comment-wrap {
+        margin-top: 10px;
+      }
+      .comment-wrap p {
+        margin-bottom: 5px;
+      }
+      .tag-wrap {
+        display: flex;
+        gap: 10px;
+        padding: 0;
+      }
+      .tag {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      .tag input{
+        border: none;
+        height: 16px;
+        width: 16px;
+        padding: 0;
+        text-align: center;
+        line-height: 15px;
+        font-size: 10px;
+      }
+    </style>
+  {% endblock head %}
 
   {% block content %}
-  <h2>제목: {{ post.title }}</h2>
-  <p>내용: {{ post.content }}</p>
-  <p>작성자: {{ post.writer}}</p>
-  <p>작성일: {{ post.created_at}}</p>
-  <p>수정일: {{ post.updated_at}}</p>
-  <a href="{% url 'blog:edit' pk=post.pk %}" class="btn btn-outline-success">수정</a>
-  <form action="{% url 'blog:delete' pk=post.pk %}" method="post">
+  <hr>
+    <h2>제목: {{ post.title }}</h2>
+    <p>내용: {{ post.content }}</p>
+    <p>작성자: {{ post.writer}}</p>
+    <p>작성일: {{ post.created_at}}</p>
+    <p>수정일: {{ post.updated_at}}</p>
+    <a href="{% url 'blog:edit' pk=post.pk %}" class="btn btn-outline-success">수정</a>
+    <form action="{% url 'blog:delete' pk=post.pk %}" method="post">
+      {% csrf_token %}
+      <input type="submit" class="btn btn-outline-success" value="삭제">
+    </form>
+  <hr>
+  <h3>댓글</h3>
+  <form action="{% url 'blog:cm-write' post_id=post.pk %}" method="post">
     {% csrf_token %}
-    <input type="submit" class="btn btn-outline-success" value="삭제">
+    {{ commentForm.content }}
+    <input type="submit" class="btn btn-outline-success" value="댓글 작성">
   </form>
-  {% for comment in comments %}
-    <p>작성자: {{ comment.writer }} : {{ comment.content }}</p>    
-  {% endfor %}
-  <form action="{% url 'blog:comment' post_id=post.pk %}" method="post">
+  {% if comments %}
+  <ul>
+    {% for comment in comments %}
+      <div class="comment-wrap">
+        <li>
+          <p>작성자: {{ comment.writer }} / {{ comment.created_at }}</p>
+          <p>{{ comment.content }}
+            <form action="{% url 'blog:cm-delete' comment_id=comment.pk %}" method="post">
+              {% csrf_token %}
+              <input type="submit" class="btn btn-outline-dark btn-sm" value="X">
+            </form>
+          </p>
+        </li>
+      </div>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>댓글이 없습니다.</p>
+  {% endif %}
+  <hr>
+  <h3>해시태그</h3>
+  {% if hashTags %}
+    <ul class="tag-wrap">
+      {% for hashTag in hashTags %}
+          <li class="tag">
+            <div>#{{ hashTag.name }}</div>
+              <form action="{% url 'blog:tag-delete' hashTag_id=hashTag.pk %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="X">
+              </form>
+          </li>
+      {% endfor %}
+        </ul>
+  {% else %}
+  <p>해시태그가 없습니다.</p>
+  {% endif %}
+  <form action="{% url 'blog:tag-write' post_id=post.pk %}" method="post">
     {% csrf_token %}
-    <input type="text" name="content">
-    <input type="submit" class="btn btn-outline-success" value="댓글달기">
+    {{ hashTagForm.name }}
+    <input type="submit" class="btn btn-outline-success" value="태그 작성">
   </form>
   {% endblock content %}
+
+
+
+  <!-- {% if hashTags %}
+  <ul>
+    {% for hashTag in hashTags %}
+    <li>#{{ hashTag.name }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>해시태그가 없습니다.</p>
+  {% endif %} -->
