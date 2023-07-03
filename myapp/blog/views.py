@@ -2,32 +2,20 @@ from django.shortcuts import render, redirect
 # from django.http import HttpResponse
 from django.views import View
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Post, Comment, HashTag
+# from django.contrib.auth import get_user_model
 from .forms import PostForm, CommentForm, HashTagForm
 
 
-### Post
-# class Index(View):
-#     def get(self, request):
-#         post_objs = Post.objects.all()
-#         context = {
-#             "posts": post_objs,
-#             # "posts": None,
-#         }
-#         return render(request, 'blog/board.html', context)
-#         # return HttpResponse('Index page GET class')
-
-
-# write
-# def write(request):
-#     if request.method == 'POST':
-#         form = PostForm(request.POST)
-#         if form.is_valid():
-#             post = form.save()
-#             return redirect('blog:list')
-#     form = PostForm()
-#     return render(request, 'blog/write.html', {'form': form})
+class Index(View):
+    def get(self, request):
+        post_objs = Post.objects.all()
+        context = {
+            "posts": post_objs
+        }
+        return render(request, 'blog/post_list.html', context)
 
 
 class List(ListView):
@@ -38,23 +26,29 @@ class List(ListView):
     context_object_name = 'posts' # 전달해주는 context의 이름
 
 
+class Write(View, LoginRequiredMixin):
 
-class Write(CreateView):
-    model = Post
-    form_class = PostForm # form_class, form_valid()
-    success_url = reverse_lazy('blog:list')
+    def get(self, request):
+        form = PostForm()
+        context = {
+            "form": form
+        }
+        return render(request, 'blog/post_form.html', context)
 
+    def post(self, request):
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            user = request.user
+            post.writer = user
+            post.save()
+            return redirect('blog:list')
+        form.add_error(None, '폼이 유효하지 않습니다.')
+        context = {
+            'form': form,
 
-# class Detail(DetailView):
-#     model = Post
-#     # template_name = 'blog/post_detail.html'
-#     context_object_name = 'post'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         post = self.get_object()
-#         context['comments'] = Comment.objects.filter(post=post)
-#         return context
+        }
+        return render(request, 'blog/post_form.html', context)
 
 
 class DetailView(View):
