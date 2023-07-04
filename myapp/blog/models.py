@@ -20,16 +20,17 @@ class Post(models.Model):
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    writer = models.CharField(max_length=10)
+    writer = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Comment on {self.post.title}/{self.content}'
+        return f'{self.post.title}/{self.content}'
 
 
 class HashTag(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    writer = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=10)
 
     def __str__(self):

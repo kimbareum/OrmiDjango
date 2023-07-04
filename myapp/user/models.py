@@ -11,7 +11,7 @@ class UserManager(BaseUserManager):
     def _create_user(self, email, password, is_staff, is_superuser, **extra_fields):
         if not email:
             raise ValueError('User must have an email')
-        now = timezone.now()
+        now = timezone.localtime()
         email = self.normalize_email(email)
         user = self.model(
             email = email,
@@ -51,4 +51,4 @@ class User(AbstractUser):
     objects = UserManager()
 
     def __str__(self):
-        return self.name
+        return self.email

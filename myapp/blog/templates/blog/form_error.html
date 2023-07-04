@@ -1,0 +1,16 @@
+{% extends 'blog/base.html' %}
+  {% block head %}
+  {% endblock head %}
+
+  {% block content %}
+  <hr>
+  <div class="alert alert-danger">
+    <ul>
+      {% for errors in form.errors.values  %}
+        {% for error in errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+    </ul>
+  </div>
+  {% endblock content %}
