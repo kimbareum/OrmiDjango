@@ -16,10 +16,12 @@ import environ
 
 # Auth user
 AUTH_USER_MODEL = 'user.User'
-LOGIN_URL = 'user:login'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Login URL
+LOGIN_URL = 'user:login'
 
 # 환경변수 관리 django-environ
 env = environ.Env(DEBUT=(bool, True))
@@ -27,7 +29,6 @@ env = environ.Env(DEBUT=(bool, True))
 environ.Env.read_env(
     env_file=os.path.join(BASE_DIR, '.env')
 )
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/

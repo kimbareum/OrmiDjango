@@ -28,10 +28,15 @@ class Index(View):
 
 class Write(LoginRequiredMixin, View):
 
+    # login_url = '/user/login'
+    # redirect_field_name = 'next'
+
     def get(self, request):
+        # next_path = request.GET.get('next')
         form = PostForm()
         context = {
             "form": form,
+            'title': 'Blog',
         }
         return render(request, 'blog/post_form.html', context)
 
@@ -42,27 +47,28 @@ class Write(LoginRequiredMixin, View):
             user = request.user
             post.writer = user
             post.save()
-            return redirect('blog:list')
-        form.add_error(None, '폼이 유효하지 않습니다.')
         context = {
             'form': form,
+            'title': 'Blog',
         }
         return render(request, 'blog/post_form.html', context)
 
 
 class DetailView(View):
+
     def get(self, request, post_id):
         post = Post.objects.get(pk=post_id)
-        comments = Comment.objects.filter(post=post)
-        hashTags = HashTag.objects.filter(post=post)
+        # comments = Comment.objects.filter(post=post)
+        # hashTags = HashTag.objects.filter(post=post)
         commentForm = CommentForm
         hashTagForm = HashTagForm
         context = {
             "post": post,
-            "comments": comments,
-            "hashTags": hashTags,
+            'comments': post.comment_set.all(),
+            'hashTags': post.hashtag_set.all(),
             "commentForm": commentForm,
             "hashTagForm": hashTagForm,
+            'title': 'Blog',
         }
         return render(request, 'blog/post_detail.html', context)
 
@@ -96,20 +102,22 @@ class Update(View):
         context = {
             "form": form,
             "post": post,
+            'title': 'Blog',
         }
         return render(request, 'blog/post_edit.html', context)
 
     def post(self, request, post_id):
         form = PostForm(request.POST)
+        post = Post.objects.get(pk=post_id)
         if form.is_valid():
-            post = Post.objects.get(pk=post_id)
             post.title = form.cleaned_data['title']
             post.content = form.cleaned_data['content']
             post.save()
             return redirect("blog:detail", post_id=post_id)
-        form.add_error(None, '폼이 유효하지 않습니다.')
         context = {
             'form': form,
+            "post": post,
+            'title': 'Blog',
         }
         return render(request, 'blog/post_edit.html', context)
 
@@ -131,23 +139,26 @@ class Delete(LoginRequiredMixin, View):
 
 
 ### Comment
-class CommentWrite(View):
+class CommentWrite(LoginRequiredMixin, View):
     
     def post(self, request, post_id):
         form = CommentForm(request.POST)
+        post = Post.objects.get(pk=post_id)
         if form.is_valid():
             user = request.user
-            print(user)
             content = form.cleaned_data['content']
-            post = Post.objects.get(pk=post_id)
             comment = Comment.objects.create(post=post, content=content, writer=user)
             return redirect('blog:detail', post_id=post.pk)
-        form.add_error(None, '폼이 유효하지 않습니다.')
+        hashTagForm = HashTagForm()
         context = {
-            'form': form,
+            'title': 'Blog',
+            'post': post,
+            'comments': post.comment_set.all(),
+            'hashTags': post.hashtag_set.all(),
+            'commentForm': form,
+            'hashTagForm': hashTagForm,
         }
-        return render(request, 'blog/form_error.html', context)
-
+        return render(request, 'blog/post_detail.html', context)
 
 
 class CommentDelete(View):
@@ -161,21 +172,26 @@ class CommentDelete(View):
 
 
 ### HashTag
-class HashTagWrite(View):
+class HashTagWrite(LoginRequiredMixin, View):
 
     def post(self, request, post_id):
         form = HashTagForm(request.POST)
+        post = Post.objects.get(pk=post_id)
         if form.is_valid():
             user = request.user
             name = form.cleaned_data['name']
-            post = Post.objects.get(pk=post_id)
             hashTag = HashTag.objects.create(name=name, post=post, writer=user)
             return redirect('blog:detail', post_id=post_id)
-        form.add_error(None, '폼이 유효하지 않습니다.')
+        commentForm = CommentForm()
         context = {
-            'form': form,
+            'post': post,
+            'comments': post.comment_set.all(),
+            'hashTags': post.hashtag_set.all(),
+            'commentForm': commentForm,
+            'hashTagForm': form,
+            'title': 'Blog',
         }
-        return render(request, 'blog/form_error.html', context)
+        return render(request, 'blog/post_detail.html', context)
 
 
 class HashTagDelete(View):

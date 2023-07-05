@@ -1,4 +1,4 @@
-{% extends 'blog/base.html' %}
+{% extends 'base.html' %}
   {% block head %}
     <style>
       form {
@@ -10,7 +10,6 @@
   {% endblock head %}
   {% block content %}
   <hr>
-  {# UpdateView를 사용하면 굳이 action을 잡을 필요가 없음. #}
   <form action="{% url 'blog:edit' post_id=post.pk %}" method="post" class="form">
     {% csrf_token %}
     {{ form.as_p }}

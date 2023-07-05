@@ -20,7 +20,8 @@ class Registration(View):
             return redirect('blog:list')
         form = RegisterForm()
         context = {
-            'form': form
+            'form': form,
+            'title': 'User',
         }
         return render(request, 'user/user_register.html', context)
 
@@ -28,17 +29,12 @@ class Registration(View):
         if request.user.is_authenticated:
             return redirect('blog:list')
         form = RegisterForm(request.POST)
-        # print(form.errors)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password1']
-            user = User.objects.create_user(email=email, password=password, username=username)
-            login(request, user)
-            return redirect('blog:list')
-        form.add_error(None, form.errors)
+            user = form.save()
+            return redirect('user:login')
         context = {
-            'form': form
+            'form': form,
+            'title': 'User',
         }
         return render(request, 'user/user_register.html', context)
 
@@ -52,26 +48,25 @@ class Login(View):
 
         context = {
             'form': form,
+            'title': 'User',
         }
         return render(request, 'user/user_login.html', context)
 
     def post(self, request):
         if request.user.is_authenticated:
             return redirect('blog:list')
-        form = LoginForm(request.POST)
-        print(form.is_valid())
+        form = LoginForm(request, request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            # email = form.data['username']
+            email = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(username=email, password=password)
             if user:
                 login(request, user)
                 return redirect('blog:list')
-            
-        form.add_error(None, '아이디가 없습니다.')
+        # form.add_error(None, '아이디가 없습니다.')
         context = {
             'form': form,
+            'title': 'User',
         }
         return render(request, 'user/user_login.html', context)
 

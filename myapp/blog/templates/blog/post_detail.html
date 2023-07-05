@@ -1,4 +1,4 @@
-{% extends 'blog/base.html' %}
+{% extends 'base.html' %}
   {% block head %}
     <style>
       .comment-wrap {
@@ -9,6 +9,7 @@
       }
       .tag-wrap {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         padding: 0;
       }
@@ -30,17 +31,8 @@
   {% endblock head %}
 
   {% block content %}
-  <hr>
-  {% comment %}
-    {% if form.errors %}
-      {% for errors in form.errors.values  %}
-        {% for error in errors %}
-          {{ error }}
-        {% endfor %}
-      {% endfor %}
-      {% include "blog/form_error" %}
-    {% else %}
-  {% endcomment %}
+    {#{% include "blog/form_error.html" %}#}
+
     <h2>제목: {{ post.title }}</h2>
     <p>내용: {{ post.content }}</p>
     <p>작성자: {{ post.writer}}</p>
@@ -56,13 +48,21 @@
 
     <hr>
     <h3>댓글</h3>
-    <form action="{% url 'blog:cm-write' post_id=post.pk %}" method="post">
-      {% csrf_token %}
-      {{ commentForm.content }}
-      <input type="submit" class="btn btn-outline-success" value="댓글 작성">
-    </form>
+    {% if commentForm %}
+      <form action="{% url 'blog:cm-write' post_id=post.pk %}" method="post">
+        {% csrf_token %}
+        {% if commentForm.errors %}
+          {% with commentForm as form %}
+            {% include "blog/form_error.html" %}
+          {% endwith %}
+        {% else %}
+          {{ commentForm.content }}
+        {% endif %}
+        <input type="submit" class="btn btn-outline-success" value="댓글 작성">
+      </form>
+    {% endif %}
     {% if comments %}
-    <ul>
+    <ul>  
       {% for comment in comments %}
         <div class="comment-wrap">
           <li>
@@ -103,8 +103,13 @@
     {% endif %}
     <form action="{% url 'blog:tag-write' post_id=post.pk %}" method="post">
       {% csrf_token %}
-      {{ hashTagForm.name }}
+      {% if hashTagForm.name.errors %}
+        {% with hashTagForm as form %}
+          {% include "blog/form_error.html" %}
+        {% endwith %}
+      {% else %}
+        {{ hashTagForm.name }}
+      {% endif %}
       <input type="submit" class="btn btn-outline-success" value="태그 작성">
     </form>
-  {# {% endif %} #}
   {% endblock content %}
