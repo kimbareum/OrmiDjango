@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+  {% block head %}
+  {% endblock head %}
+  {% block content %}
+    <h2>Index page</h2>
+    <form action="{% url 'blog:delete' post_id=2 %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="삭제">
+    </form>
+
+    <form action="{% url 'blog:cm-write' post_id=2 %}" method="post" class="cm-write">
+      {% csrf_token %}
+      <input type="text" name="content">
+      <input type="submit" value="댓글 입력">
+    </form>
+
+  {% endblock content %}
+  {% block script %}
+  <script>
+    const csrfToken = "{{ csrf_token }}"
+    const cm_write = document.querySelector(".cm-write")
+    cm_write.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const data = new FormData(e.target)
+      const url = e.target.getAttribute('action')
+      const response = await fetch(url, 
+      {
+        method: 'POST',
+        headers: {
+            "X-CSRFToken": csrfToken
+        },
+            body: data,
+            redirect: "follow",
+      }).then((res) => {
+        return res
+      })
+
+      if (response.status === 201) {
+        const res_json = await response.json()
+        const link = `/blog/detail/${res_json.post_id}`
+        location.href = link
+      }
+      else {
+        const errors = await response.json()
+        for (const field in errors){
+          for (const error of errors[field]){
+            console.log(error)
+          }
+        }
+      }
+    })
+  </script>
+  {% endblock script %}

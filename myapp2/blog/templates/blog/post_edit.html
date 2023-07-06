@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+  {% block head %}
+    <style>
+      form {
+        display:flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+    </style>
+  {% endblock head %}
+  {% block content %}
+  <hr>
+  <form action="{% url 'blog:edit' post_id=post.pk %}" method="post" class="form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="수정" class="btn btn-outline-success">
+  </form>
+  {% endblock content %}

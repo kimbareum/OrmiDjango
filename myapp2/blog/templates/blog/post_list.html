@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+  {% block content %}
+  <p>블로그 게시판 첫 화면입니다.</p>
+  <form action="{% url 'blog:write' %}" method="get">
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ request.GET.next }}">
+    <input type="submit" value="글 작성" class="btn btn-outline-success">
+  </form>
+  <!-- 글이 있을 때 게시글 출력 -->
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>제목</th>
+        <th>작성자</th>
+      </tr>
+    </thead>
+    <tbody class="list">
+    </tbody>
+  </table>
+  {% endblock content %}
+  {% block script %}
+    
+  {% endblock script %}
