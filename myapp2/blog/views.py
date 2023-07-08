@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+# from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,6 +14,9 @@ from .serializers import PostSerializer, CommentSerializer, HashTagSerializer
 
 from .models import Post, Comment, HashTag
 # from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 class Index(APIView):
     
@@ -87,16 +92,19 @@ class Delete(APIView):
 
 
 ### Comment
-class CommentWrite(LoginRequiredMixin, APIView):
+class CommentWrite(APIView):
     
     def post(self, request, post_id):
-        serializer = CommentSerializer(data=request.data)
+        # return Response(request)
+        serializer = CommentSerializer(data=request.data, context={'request': request})
+        print(serializer.is_valid())
         if serializer.is_valid():
             try:
                 post = Post.objects.get(pk=post_id)
             except ObjectDoesNotExist as e:
                 return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-            user = request.user
+            # user = request.user
+            user = User.objects.get(pk=1)
             content = serializer.data.get('content')
             try:
                 comment = Comment.objects.create(post=post, content=content, writer=user)

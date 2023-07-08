@@ -4,6 +4,7 @@ from django.views import View
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from .models import Post, Comment, HashTag
 # from django.contrib.auth import get_user_model
 from .forms import PostForm, CommentForm, HashTagForm
@@ -47,6 +48,7 @@ class Write(LoginRequiredMixin, View):
             user = request.user
             post.writer = user
             post.save()
+            return redirect('blog:list')
         context = {
             'form': form,
             'title': 'Blog',
@@ -57,15 +59,26 @@ class Write(LoginRequiredMixin, View):
 class DetailView(View):
 
     def get(self, request, post_id):
-        post = Post.objects.get(pk=post_id)
+        
+        # post = Post.objects.select_related('writer').get(pk=post_id)
+        # comments = Comment.objects.select_related('writer').filter(post=post)
+        # comments = Comment.objects.select_related('writer').filter(post__pk=post_id)
+        comments = Comment.objects.select_related('post').filter(post__pk=post_id)
+        
+        # hashTags = HashTag.objects.select_related('writer').filter(post=post)
+        hashTags = HashTag.objects.select_related('writer').filter(post__pk=post_id)
+        try:
+            post = comments[0].post
+        except:
+            post = Post.objects.get(pk=post_id)
         # comments = Comment.objects.filter(post=post)
         # hashTags = HashTag.objects.filter(post=post)
         commentForm = CommentForm
         hashTagForm = HashTagForm
         context = {
             "post": post,
-            'comments': post.comment_set.all(),
-            'hashTags': post.hashtag_set.all(),
+            'comments': comments,
+            'hashTags': hashTags,
             "commentForm": commentForm,
             "hashTagForm": hashTagForm,
             'title': 'Blog',
@@ -98,6 +111,8 @@ class Update(View):
 
     def get(self, request, post_id):
         post = Post.objects.get(pk=post_id)
+        # get()은 해당 조건이 없을 시 오류가 발생.
+        # 처리방법 추후에
         form = PostForm(initial={'title': post.title, 'content': post.content})
         context = {
             "form": form,
@@ -140,6 +155,13 @@ class Delete(LoginRequiredMixin, View):
 
 ### Comment
 class CommentWrite(LoginRequiredMixin, View):
+
+    '''
+    1. LoginRequiredMixin
+    2. 
+    if not user:
+        user = 비회원 유저 권한 User로 처리.
+    '''
     
     def post(self, request, post_id):
         form = CommentForm(request.POST)
@@ -147,7 +169,12 @@ class CommentWrite(LoginRequiredMixin, View):
         if form.is_valid():
             user = request.user
             content = form.cleaned_data['content']
-            comment = Comment.objects.create(post=post, content=content, writer=user)
+            try:
+                comment = Comment.objects.create(post=post, content=content, writer=user)
+            except ObjectDoesNotExist as e:
+                print('Post does not exist', str(e))
+            except ValidationError as e:
+                print('Validation error occurred', str(e))
             return redirect('blog:detail', post_id=post.pk)
         hashTagForm = HashTagForm()
         context = {

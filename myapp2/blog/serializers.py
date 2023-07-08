@@ -13,7 +13,17 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['content']
+        fields = '__all__'
+        # fields = ['content']
+
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get('request')
+        if request and request.method == 'POST':
+            fields_to_remove = set(fields.keys()) - {'content'}
+            for field in fields_to_remove:
+                fields.pop(field)
+        return fields
 
 
 class HashTagSerializer(serializers.ModelSerializer):

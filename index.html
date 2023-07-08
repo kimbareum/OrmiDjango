@@ -1,24 +1,18 @@
-{% extends "base.html" %}
-  {% block head %}
-  {% endblock head %}
-  {% block content %}
-    <h2>Index page</h2>
-    <form action="{% url 'blog:delete' post_id=2 %}" method="post">
-      {% csrf_token %}
-      <input type="submit" value="삭제">
-    </form>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+</head>
+<body>
+  <form action="http://127.0.0.1:8000/blog/detail/3/comment/write" method="post" class="cm-write">
+    <input type="text" name="content">
+    <input type="submit" value="댓글 입력">
+  </form>
 
-    <form action="{% url 'blog:cm-write' post_id=3 %}" method="post" class="cm-write">
-      {% csrf_token %}
-      <input type="text" name="content">
-      <input type="submit" value="댓글 입력">
-    </form>
-
-  {% endblock content %}
-  {% block script %}
   <script>
-    //const csrfToken = "{{ csrf_token }}"
-    const csrfToken = "asdfasdfsdf"
     const cm_write = document.querySelector(".cm-write")
     cm_write.addEventListener('submit', async (e) => {
       e.preventDefault()
@@ -26,9 +20,9 @@
       const url = e.target.getAttribute('action')
       const response = await fetch(url, 
       {
+        mode: 'cors',
         method: 'POST',
         headers: {
-            "X-CSRFToken": csrfToken
         },
             body: data,
             redirect: "follow",
@@ -39,8 +33,6 @@
       if (response.status === 201) {
         const res_json = await response.json()
         console.log('good')
-        //const link = `/blog/detail/${res_json.post_id}`
-        //location.href = link
       }
       else {
         const errors = await response.json()
@@ -52,4 +44,5 @@
       }
     })
   </script>
-  {% endblock script %}
+</body>
+</html>
