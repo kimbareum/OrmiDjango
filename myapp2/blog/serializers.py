@@ -6,7 +6,13 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ['writer']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['writer'] = instance.writer.email
+        return representation
 
 
 class CommentSerializer(serializers.ModelSerializer):

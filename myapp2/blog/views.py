@@ -29,10 +29,9 @@ class Index(APIView):
 class Write(APIView):
 
     def post(self, request):
-        serializer = PostSerializer(data=request.data, context={'request': request})
+        serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             post = serializer.save(writer=request.user)
-            # post = serializer.save(writer=User.objects.get(pk=1))
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
