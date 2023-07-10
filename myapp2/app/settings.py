@@ -41,8 +41,7 @@ DEBUG = env('DEBUG', default=False)
 
 ALLOWED_HOSTS = []
 
-CORS_ORIGIN_ALLOW_ALL = True
-
+# CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
@@ -54,14 +53,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
+    # 'corsheaders',
     'rest_framework',
     'blog',
     'user',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -90,6 +89,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'app.wsgi.application'
+
+# REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASS': {
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    },
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/hour', # sec, min, hour, day
+        'user': '20/hour',
+    }
+}
 
 
 # Database
@@ -122,6 +133,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# SESSION
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+SESSION_COOKIE_AGE = 86400
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -140,6 +158,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles/'
+
+# Media fileds
+
+MEDIA_URL = 'media/'
+MIDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

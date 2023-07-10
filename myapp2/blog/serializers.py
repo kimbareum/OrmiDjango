@@ -16,14 +16,14 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # fields = ['content']
 
-    def get_fields(self):
-        fields = super().get_fields()
-        request = self.context.get('request')
-        if request and request.method == 'POST':
-            fields_to_remove = set(fields.keys()) - {'content'}
-            for field in fields_to_remove:
-                fields.pop(field)
-        return fields
+    # def get_fields(self):
+    #     fields = super().get_fields()
+    #     request = self.context.get('request')
+    #     if request and request.method == 'POST':
+    #         fields_to_remove = set(fields.keys()) - {'content'}
+    #         for field in fields_to_remove:
+    #             fields.pop(field)
+    #     return fields
 
 
 class HashTagSerializer(serializers.ModelSerializer):
